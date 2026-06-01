@@ -19,10 +19,18 @@ from auth import get_password_hash, verify_password, create_access_token, get_cu
 
 models.Base.metadata.create_all(bind=engine)
 
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(
     title="MindMesh API",
     description="Transforming information overload into connected intelligence.",
     version="0.1.0"
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.post("/register", response_model=schemas.Token)
