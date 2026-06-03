@@ -1,102 +1,151 @@
 'use client';
 // app/dashboard/layout.jsx
-// Sidebar + main content layout for all dashboard pages
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logout } from '../../lib/api';
-
-const navItems = [
-  { label: 'Home', href: '/dashboard', icon: '⊞' },
-  { label: 'Search', href: '/dashboard/search', icon: '⌕' },
-  { label: 'Ask AI', href: '/dashboard/ask', icon: '✦' },
-];
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('mindmesh_token');
+    document.cookie = 'mindmesh_token=; path=/; max-age=0';
+    window.location.href = '/login';
+  
+  };
+
+  const navItems = [
+    { name: 'Workspace Base', path: '/dashboard', icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    )},
+    { name: 'Semantic Search', path: '/dashboard/search', icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    )},
+    { name: 'Ask Context AI', path: '/dashboard/ask', icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    )},
+  ];
 
   return (
-    <div className="flex min-h-screen bg-gray-950">
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #FDFDFB 0%, #F4F7F2 100%)',
+      fontFamily: 'Inter, -apple-system, sans-serif'
+    }}>
+      
+      {/* Sidebar Navigation */}
+      <aside style={{
+        width: '260px',
+        minWidth: '260px',
+        background: 'rgba(253, 253, 251, 0.75)',
+        backdropFilter: 'blur(10px)',
+        borderRight: '1px solid #D0DCC8',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '32px 24px',
+        boxSizing: 'border-box'
+      }}>
+        
+        <div>
+          {/* Brand Branding */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '40px' }}>
+            <div style={{
+              width: '28px', height: '28px', borderRadius: '8px', background: '#3B6D11',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EAF3DE" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <span style={{ fontWeight: '600', fontSize: '15px', color: '#1A2818', letterSpacing: '-0.3px' }}>MindMesh</span>
+          </div>
 
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+          {/* Navigation Links */}
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {navItems.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Link key={item.path} href={item.path} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  fontSize: '13.5px',
+                  fontWeight: '500',
+                  textDecoration: 'none',
+                  transition: 'all 0.15s ease',
+                  background: isActive ? '#3B6D11' : 'transparent',
+                  color: isActive ? '#EAF3DE' : '#5A6E58',
+                  border: isActive ? '1px solid #2A5008' : '1px solid transparent',
+                  boxShadow: isActive ? '0 2px 6px rgba(59, 109, 17, 0.15)' : 'none'
+                }}>
+                  <span style={{ display: 'flex', alignItems: 'center', opacity: isActive ? 1 : 0.7 }}>
+                    {item.icon}
+                  </span>
+                  {item.name}
+                </Link>
+              );
+            })}
 
-      {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 h-full w-60 bg-gray-900 border-r border-gray-800 z-30 flex flex-col
-        transform transition-transform duration-200
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:z-auto
-      `}>
-        {/* Logo */}
-        <div className="px-6 py-5 border-b border-gray-800">
-          <h1 className="text-xl font-bold text-white tracking-tight">
-            Mind<span className="text-purple-500">Mesh</span>
-          </h1>
-          <p className="text-xs text-gray-500 mt-0.5">Knowledge Intelligence</p>
-        </div>
+            {/* Subtle Divider Line */}
+            <div style={{ 
+              height: '1px', 
+              background: '#D0DCC8', 
+              margin: '16px 4px 10px 4px' 
+            }} />
 
-        {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition
-                  ${isActive
-                    ? 'bg-purple-600/20 text-purple-400 border border-purple-600/30'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                  }`}
-              >
-                <span className="text-base">{item.icon}</span>
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Logout */}
-        <div className="px-3 py-4 border-t border-gray-800">
-          <button
-            onClick={logout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-900/20 transition"
-          >
-            <span className="text-base">⎋</span>
-            Sign out
-          </button>
+            {/* Clean Sign Out Option */}
+            <button 
+              onClick={handleLogout}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                fontSize: '13.5px',
+                fontWeight: '500',
+                color: '#6A8068',
+                background: 'transparent',
+                border: '1px solid transparent',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.15s ease',
+                boxSizing: 'border-box'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(154, 176, 152, 0.12)';
+                e.currentTarget.style.color = '#1A2818';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#6A8068';
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ minWidth: '16px' }}>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Sign out
+            </button>
+          </nav>
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Primary Workspace Panel */}
+      <main style={{
+        flex: 1,
+        padding: '48px 64px',
+        overflowY: 'auto',
+        boxSizing: 'border-box'
+      }}>
+        {children}
+      </main>
 
-        {/* Mobile top bar */}
-        <header className="lg:hidden flex items-center gap-4 px-4 py-3 bg-gray-900 border-b border-gray-800">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="text-gray-400 hover:text-white text-xl"
-          >
-            ☰
-          </button>
-          <span className="font-bold text-white">
-            Mind<span className="text-purple-500">Mesh</span>
-          </span>
-        </header>
-
-        <main className="flex-1 p-6 lg:p-8 overflow-auto">
-          {children}
-        </main>
-      </div>
     </div>
   );
 }
