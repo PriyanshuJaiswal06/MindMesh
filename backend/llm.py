@@ -1,8 +1,11 @@
 import os
 from google import genai
 from google.genai import types
+from dotenv import load_dotenv
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY", "real-key"))  #DON'T BE STUPID, HARD-CODED API KEY NOOOOOOOOOOOO
+load_dotenv()
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY", "real-key"))  # Fallback key for local development only.
 
 def generate_rag_response(query: str, retrieved_chunks: list) -> str:
     """
