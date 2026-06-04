@@ -21,7 +21,7 @@ export default function RegisterPage() {
 
     try {
       // Direct hook into your existing lib/api abstraction
-      await register(name, email, password);
+      await register(email, password);
       router.push('/dashboard');
     } catch (err) {
       setError(err.message || 'Something went wrong during account generation.');
