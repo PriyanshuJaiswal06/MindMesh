@@ -1,7 +1,7 @@
 // lib/api.js
 // All backend API calls are here. Import what you need in any page.
 
-const BASE_URL = 'http://127.0.0.1:8000';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // ─── Token Helpers ───────────────────────────────────────────────────────────
 
