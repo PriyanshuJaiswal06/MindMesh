@@ -29,7 +29,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",      # local development
-        "https://mindmesh.vercel.app" # production frontend
+        "https://mind-mesh-pi.vercel.app" # production frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],
